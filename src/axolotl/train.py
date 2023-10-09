@@ -135,9 +135,6 @@ def train(
     if cfg.fsdp:
         trainer.save_model(cfg.output_dir)
     elif cfg.deepspeed:
-        print('saving with new deepspeed')
-#        trainer.accelerator.wait_for_everyone()
-#        state_dict = trainer.model_wrapped._zero3_consolidated_16bit_state_dict()
         trainer.accelerator.wait_for_everyone()
         unwrapped_model = trainer.accelerator.unwrap_model(trainer.model_wrapped)
 
