@@ -136,8 +136,10 @@ def train(
         trainer.save_model(cfg.output_dir)
     elif cfg.deepspeed:
         print('saving with new deepspeed')
+#        trainer.accelerator.wait_for_everyone()
+#        state_dict = trainer.model_wrapped._zero3_consolidated_16bit_state_dict()
         trainer.accelerator.wait_for_everyone()
-        unwrapped_model = trainer.accelerator.unwrap_model(trainer.model)
+        unwrapped_model = trainer.accelerator.unwrap_model(trainer.model_wrapped)
 
         # New Code #
         # Saves the whole/unpartitioned fp16 model when in ZeRO Stage-3 to the output directory if
@@ -149,7 +151,7 @@ def train(
             cfg.output_dir,
             is_main_process=trainer.accelerator.is_main_process,
             save_function=trainer.accelerator.save,
-            state_dict=trainer.accelerator.get_state_dict(trainer.model),
+            state_dict=trainer.accelerator.get_state_dict(trainer.model_wrapped),
         )
     elif cfg.local_rank == 0:
         if cfg.flash_optimum:
