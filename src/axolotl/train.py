@@ -10,6 +10,7 @@ from typing import Optional
 
 import torch
 import transformers.modelcard
+from transformers.deepspeed import is_deepspeed_zero3_enabled
 from datasets import Dataset
 from optimum.bettertransformer import BetterTransformer
 
@@ -134,7 +135,7 @@ def train(
     # only save on rank 0, otherwise it corrupts output on multi-GPU when multiple processes attempt to write the same file
     if cfg.fsdp:
         trainer.save_model(cfg.output_dir)
-    elif cfg.deepspeed and trainer.hf_deepspeed_config_orig.is_zero3():
+    elif cfg.deepspeed and is_deepspeed_zero3_enabled():
         trainer.accelerator.wait_for_everyone()
         unwrapped_model = trainer.accelerator.unwrap_model(trainer.model_wrapped)
 
