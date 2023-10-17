@@ -134,7 +134,7 @@ def train(
     # only save on rank 0, otherwise it corrupts output on multi-GPU when multiple processes attempt to write the same file
     if cfg.fsdp:
         trainer.save_model(cfg.output_dir)
-    elif cfg.deepspeed:
+    elif cfg.deepspeed and trainer.hf_deepspeed_config_orig.is_zero3():
         trainer.accelerator.wait_for_everyone()
         unwrapped_model = trainer.accelerator.unwrap_model(trainer.model_wrapped)
 
