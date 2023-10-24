@@ -28,6 +28,7 @@ from axolotl.prompt_tokenizers import (
     OpenAssistantPromptTokenizingStrategy,
     SummarizeTLDRPromptTokenizingStrategy,
 )
+from axolotl.prompt_strategies.sharegpt import SimpleShareGPTPromptTokenizingStrategy
 from axolotl.prompters import (
     AlpacaPrompter,
     GPTeacherPrompter,
@@ -278,6 +279,26 @@ def load_tokenized_prepared_datasets(
                     cfg.train_on_inputs,
                     cfg.sequence_len,
                 )
+                ds_wrapper = TokenizedPromptDataset(ds_strategy, ds)
+                datasets.append(ds_wrapper)
+            elif d_base_type == "sharegpt":
+                ds_cfg = d
+                conversation = (
+                    ds_cfg["conversation"] if ds_cfg and "conversation" in ds_cfg else None
+                )
+                field_human = ds_cfg["field_human"] if ds_cfg and "field_human" in ds_cfg else None
+                field_model = ds_cfg["field_model"] if ds_cfg and "field_model" in ds_cfg else None
+                ds_strategy = SimpleShareGPTPromptTokenizingStrategy(
+                    ShareGPTPrompterV2(
+                        conversation=conversation,
+                        role_key_model=field_model,
+                        role_key_human=field_human,
+                    ),
+                    tokenizer,
+                    cfg.train_on_inputs,
+                    cfg.sequence_len,
+                )
+
                 ds_wrapper = TokenizedPromptDataset(ds_strategy, ds)
                 datasets.append(ds_wrapper)
             elif d_base_type == "explainchoice":
