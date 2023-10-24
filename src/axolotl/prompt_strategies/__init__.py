@@ -22,5 +22,6 @@ def load(strategy, tokenizer, cfg, ds_cfg):
             if "ds_cfg" in sig.parameters:
                 load_kwargs["ds_cfg"] = ds_cfg
         return func(tokenizer, cfg, **load_kwargs)
-    except Exception:  # pylint: disable=broad-exception-caught
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        print('Cannot load strategy', strategy, str(e))
         return None
