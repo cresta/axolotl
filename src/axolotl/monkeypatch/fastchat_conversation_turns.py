@@ -127,12 +127,12 @@ def get_turns(  # pylint: disable=too-many-return-statements
         if self.system_message:
             # For llama3, the system message is NOT incorporated into the first human instruction
             # All messages follow <|start_header_id|>' + role + '<|end_header_id|>\n\n'+ message + '<|eot_id|>
-            yield "", system_prompt
+            yield "", "<|begin_of_text|>" + system_prompt
         for i, (role, message) in enumerate(self.messages):
             if message:
-                yield role + " ", message + "<|eot_id|>"
+                yield f"<|start_header_id|>{role}<|end_header_id|>\n\n", f"{message.strip()}<|eot_id|>"
             else:
-                yield role, ""
+                yield f"<|start_header_id|>{role}<|end_header_id|>\n\n", ""
         return
     if self.sep_style == SeparatorStyle.CHATGLM:
         # source: https://huggingface.co/THUDM/chatglm-6b/blob/1d240ba371910e9282298d4592532d7f0f3e9f3e/modeling_chatglm.py#L1302-L1308
